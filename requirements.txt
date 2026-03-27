@@ -1,0 +1,7 @@
+playwright
+whisperx
+torch
+torchaudio
+pandas
+asyncio
+python-dotenv

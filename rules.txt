@@ -1,0 +1,213 @@
+ASR ANNOTATION
+MASTER RULEBOOK
+Automatic Speech Recognition  ·  Ground Truth Transcription Guidelines
+
+
+
+
+
+These foundational rules govern every annotation task regardless of language, speaker age, or audio type. All downstream rules are built on these.
+
+  RULE 01    Transcribe the Full Audio — Always  [BOTH]  
+The ENTIRE audio must be transcribed. Do not stop at the reference text boundary. If the student speaks beyond the reference word/letter/paragraph, ALL of that speech must be captured.
+
+
+  RULE 02    Verbatim Transcription — No Corrections  [BOTH]  
+Never correct grammar, pronunciation, or vocabulary. Never fill in intended words or infer meaning. What is heard is what is written.
+
+
+  RULE 03    Reference Text as Anchor — Use When Correct  [BOTH]  
+When a spoken word/letter matches the reference text (standard pronunciation OR any reference audio pronunciation), the transcript must be COPIED from the reference text — not retyped.
+
+
+
+
+  RULE 04    Timestamp Format  [BOTH]  
+All timestamps must follow a consistent 4-part time format:
+
+  Hindi:    HH:MM:SS:MS    (e.g.,  00:00:01:462)
+  English:  HH:MM:SS.MS    (e.g.,  0:00:01.209974)
+
+Each word must have a start and end timestamp. Timestamps must closely match when the word actually begins and ends — not approximated loosely.
+
+  RULE 05    Pause-Separated Units = Separate Timestamps  [BOTH]  
+Any section of audio separated by a pause must be treated as a separate entity and given its own timestamp entry.
+
+
+  RULE 06    Segment Break Threshold: 0.8 seconds  [PIPELINE]  
+In the automated pipeline (annotate.py), a gap of 0.8 seconds or more between consecutive words triggers a new annotation segment. This is the SEGMENT_BREAK constant.
+
+
+  RULE 07    What Gets Timestamped vs Not  [BOTH]  
+
+
+
+These rules govern how different types of speech are represented in the transcript. Rules marked [HINDI] apply to the Hindi child reading annotation; [ENGLISH] to the English adult annotation; [BOTH] to both.
+
+  RULE 08    Correct Reading of Reference Word/Letter  [BOTH]  
+If the pronunciation matches (a) standard pronunciation OR (b) any reference audio pronunciation → use exact reference text spelling via copy-paste.
+
+
+
+  RULE 09    Incorrect Reading / Substitution  [BOTH]  
+If the pronunciation does NOT match standard or reference audio → transcribe exactly as heard.
+
+
+  RULE 10    Inserted Words — Extra Speech  [BOTH]  
+If the student says a word not present in the reference text (valid word or not), transcribe it as heard. Do not omit any extra speech.
+
+  RULE 11    Splitting Words: Sub-lexical Reading with Pauses  [BOTH]  
+When a word is read in parts separated by pauses, each part must be independently transcribed and timestamped.
+
+
+  RULE 12    Sub-lexical Reading with Stretches (English Only)  [ENGLISH]  
+If a word is spoken with elongated/stretched vowels or consonants, transcribe the whole word in Devanagari. Add only ONE extra vowel or consonant to indicate stretching — no matter how long the stretch.
+
+
+  RULE 13    Repetitions and False Starts  [BOTH]  
+All repetitions, false starts, and stutters must be included verbatim. Do not clean up or omit restarts.
+
+
+  RULE 14    Spelling Out Words Letter by Letter  [ENGLISH]  
+When a word is spelled out with individual letter names, transcribe each letter name as heard in Devanagari script (since letter names are not full English words).
+
+
+  RULE 15    Invalid / Non-English Words (English Only)  [ENGLISH]  
+If the spoken output is not a real English word, represent it phonetically in Devanagari. The transcription does not need to be a real Hindi word — just phonetically accurate.
+
+
+  RULE 16    Proper Nouns (English Only)  [ENGLISH]  
+Names of people, places, animals, or other named entities → transcribe in Devanagari based on how the name is pronounced. Do not anglicize.
+
+
+  RULE 17    Punctuation Within Words (English Only)  [ENGLISH]  
+Punctuation marks that are part of a word (contractions, possessives, hyphens) must be included in the transcript if they are pronounced.
+
+
+  RULE 18    Abbreviations (English Only)  [ENGLISH]  
+Abbreviations are handled based on how they sound when spoken:
+
+
+
+
+These tags are used to mark specific audio conditions. Tags are NOT mutually exclusive — multiple tags can and should be applied to the same word or region when relevant.
+
+
+
+Tag Behavior Detail
+  RULE 19    <SIL> — Silence Tag  [BOTH]  
+Apply when there is a pause or silence of more than 2 seconds with no speech. Mark the full silent region with start and end timestamps.
+  Example:  00:00:12:00 → 00:00:16:12 = no speech
+  Annotation: <SIL></SIL>  (with timestamps around that region)
+
+  RULE 20    <FIL> — Filler Tag  [BOTH]  
+Apply to hesitation/filler sounds. Each filler word/sound gets its own individual <FIL> tag. The tag wraps the individual token, not the entire group.
+  Heard:  आ अ बा बाल बालक
+  Annotate:  <FIL>आ</FIL>  <FIL>अ</FIL>  बा  बाल  बालक
+
+
+Pipeline filler list (English): um, uh, ah, hmm, er, mm, hm, oh, well, like, so, basically, right, okay, you know, i mean, actually, literally
+
+  RULE 21    <MB> — Mumble / Unintelligible Tag  [BOTH]  
+When speech cannot be understood and cannot be transcribed in any script, do not guess. Apply the <MB> tag to the region. In the pipeline, this is triggered when WhisperX confidence score < 0.40.
+  Example:  unintelligible from 00:00:12:00 → 00:00:16:12
+  Annotation: <MB></MB>
+
+
+  RULE 22    <NOISE> — Background Noise Tag  [BOTH]  
+Two sub-cases apply:
+
+  No speech:  <NOISE></NOISE>
+  With word:  <NOISE>बालक</NOISE>
+
+  RULE 23    <ADULT> — Adult Voice Tag (Hindi Only)  [HINDI]  
+When the teacher or supervisor speaks (e.g., to prompt the child), those words must be tagged with <ADULT>. This tag does not exist in the English guideline.
+  Example: teacher says 'बालक'
+  Annotation: <ADULT>बालक</ADULT>
+
+  RULE 24    <LN> — Letter Name Tag (English Only)  [ENGLISH]  
+When a word is spelled out with letter names (e.g., b-a-l-l-o-o-n), use the <LN> tag around the entire letter-spelled section. This tag does not exist in the Hindi guideline.
+  Heard: p-i-n (letter by letter)
+  Annotation: <LN>पी आई एन</LN>
+
+  RULE 25    Combining Multiple Tags  [BOTH]  
+Tags are not mutually exclusive. Any combination may apply to the same word or region.
+
+
+
+
+  RULE 26    Output Format: JSON  [BOTH]  
+All annotations must be exported in a strict JSON format. The schema is identical for both Hindi and English guidelines:
+
+  {
+    "id": 13945,
+    "file_name": "audio_student_2366399046006104195.wav",
+    "annotations": [
+      {
+        "start": "0:00:00.519350",
+        "end": "0:00:01.209974",
+        "Transcription": [ "शेर" ]
+      },
+      {
+        "start": "0:00:01.232074",
+        "end": "0:00:01.651974",
+        "Transcription": [ "जंगल" ]
+      }
+    ]
+  }
+
+  RULE 27    Tag Validation Rule — No Malformed Tags  [PIPELINE]  
+Before outputting JSON, every tag must be validated for correct open/close pairing. If an opening tag exists without a matching closing tag (or vice versa), the token must be replaced with <MB></MB>.
+  Implementation: validate_tag() in annotate.py
+  If open tag exists without close tag → force <MB></MB>
+
+  RULE 28    No Empty Tokens  [PIPELINE]  
+Every annotation entry must contain transcription text. If the raw transcribed value is empty (raw == ""), it must be replaced with <MB></MB>. Empty annotation slots are never permitted.
+
+
+
+These rules document how the annotation guidelines are implemented in the automated WhisperX-based pipeline.
+
+  RULE 29    ASR Model: WhisperX (medium)  [PIPELINE]  
+
+  RULE 30    Confidence-Based Mumble Detection  [PIPELINE]  
+WhisperX provides a per-word confidence score field. If a word's score is below 0.40, it is automatically tagged as <MB></MB> rather than accepted as a valid transcription.
+  Threshold:  score < 0.40  →  <MB></MB>
+  Field:      WhisperX  word_segments[n].score
+  Review:     Human annotator reviews all auto-MB tokens for false positives
+
+  RULE 31    Timestamp Formatting Function  [PIPELINE]  
+WhisperX outputs timestamps as float seconds. The pipeline converts these to the 4-part HH:MM:SS:MS format required by the guidelines using the format_ts() function.
+  Input:   float seconds (e.g., 1.462)
+  Output:  00:00:01:462
+  Function: format_ts() in annotate.py
+
+  RULE 32    Human Annotation Review Pass  [PIPELINE]  
+After automated transcription, a mandatory human review pass corrects reference text alignment errors that ASR cannot resolve automatically.
+
+
+  RULE 33    Noise Tag: Manual Review Required  [PIPELINE]  
+The <NOISE> tag cannot be auto-detected from WhisperX data alone. It is implemented as a stub in the pipeline and requires manual review by the annotator.
+  Status:  Stub implemented — manual review required
+
+  RULE 34    Excel Export with Color Coding  [PIPELINE]  
+For human visual review, all annotations are exported to an Excel file with color-coded rows by tag type:
+
+
+  RULE 35    Segment Flush Logic  [PIPELINE]  
+The flush_segment() function in annotate.py assembles a complete segment when a gap exceeding SEGMENT_BREAK (0.8s) is detected, then resets the buffer for the next segment.
+  flush_segment():
+    segment.start = first_word.start
+    segment.end   = last_word.end
+    segment.text  = join(all words + tags in buffer)
+    → append to annotations list
+    → reset buffer
+
+
+
+
+
+
+
+
+— END OF MASTER RULEBOOK —
